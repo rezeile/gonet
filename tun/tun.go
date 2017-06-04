@@ -1,7 +1,8 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
+	"github.com/rezeile/gotcp/tcp"
 	"github.com/songgao/water"
 	"github.com/songgao/water/waterutil"
 	"log"
@@ -9,7 +10,8 @@ import (
 
 func getIPFrame(packet []byte) {
 	payload := waterutil.IPv4Payload(packet)
-	log.Println(string(payload[:]))
+	th := tcp.ParseTCPHeader(payload)
+	fmt.Println(th.GetSrcPort(), th.GetDstPort())
 }
 
 func main() {
