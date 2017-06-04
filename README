@@ -1,0 +1,41 @@
+TCP Implementation in GO
+
+In the following implementation of TCP we will implement functions related to 
+the 'net' package types TCPAddr, TCP Conn, and TCPListener from scratch. Below
+are the functions associated with each of the types that we will implement:
+
+I.   TCP Addr
+     1. ResolveTCPAddr
+     2. Network
+     3. String 
+
+II.  TCPConn
+     1. Dial TCP
+     2. Close
+     3. CloseRead
+     4. CloseWrite
+     5. File
+     6. LocalAddr
+     7. Read
+     8. ReadFrom
+     9. RemoteAddr
+    10. SetDeadline
+    11. SetKeepAlive
+    12. SetKeepAlivePeriod
+    13. SetLinger
+    14. SetNoDelay
+    15. SetReadBuffer
+    16. SetReadDeadline
+    17. SetWriteBuffer
+    18. SetWriteDeadline
+    19. Write
+
+III. TCP Listener
+     1. ListenTCP
+     2. Accept
+     3. AcceptTCP
+     4. Addr
+     5. Close
+     6. File
+     7. SetDeadline
+
