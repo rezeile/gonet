@@ -1,34 +1,33 @@
 package main
 
 import (
-	"fmt"
-	"github.com/rezeile/goudp/udp"
+	"github.com/rezeile/gonet/debug"
+	"github.com/rezeile/gonet/ip"
+	"github.com/rezeile/gonet/udp"
 	"github.com/songgao/water"
-	"github.com/songgao/water/waterutil"
 	"log"
 )
 
-func echoMessage(ifce *water.Interface, packet *[]byte) {
-	uh := udp.ParseUDPHeader(waterutil.IPv4Payload(*packet))
-	/* Get Source IP */
-	sip := waterutil.IPv4Source(*packet)
-	sport := uh.GetSrcPort()
-	fmt.Println("Source IP: ", sip.String())
-	fmt.Println("Source Port: ", sport)
-	/* Get Destination IP */
-	dip := waterutil.IPv4Destination(*packet)
-	dport := uh.GetDstPort()
-	fmt.Println("Destination IP: ", dip.String())
-	fmt.Println("Destination Port: ", dport)
-	fmt.Println("----------------------------------")
+func echoMessage(ifce *water.Interface, packet []byte) {
+	var ih ip.IPHeader = packet
+	debug.PrintIPHeader(ih)
+	var uh udp.UDPHeader = packet[ih.GetPayloadOffset():]
+	debug.PrintUDPHeader(uh)
 
-	/* Rewrite packet */
-	waterutil.SetIPv4Source(*packet, dip)
-	waterutil.SetIPv4Destination(*packet, sip)
-	uh.SetSrcPort(*packet, dport)
-	uh.SetDstPort(*packet, sport)
+	/* Rewrite Packets */
+	sip := ih.GetSourceIP()
+	dip := ih.GetDestinationIP()
+	ih.SetSourceIP(dip)
+	ih.SetDestinationIP(sip)
+	sport := uh.GetSourcePort()
+	uh.SetSourcePort(uh.GetDestinationPort())
+	uh.SetDestinationPort(sport)
 
-	/* Print actual message */
+	/* Write To Interface */
+	ifce.Write(ih)
+	/* Log New Results */
+	debug.PrintIPHeader(ih)
+	debug.PrintUDPHeader(uh)
 }
 
 func main() {
@@ -47,6 +46,6 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		ifce.Write(packet[:n])
+		echoMessage(ifce, packet[:n])
 	}
 }

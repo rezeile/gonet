@@ -4,28 +4,49 @@ import (
 	"encoding/binary"
 )
 
-type TCPHeader struct {
-	srcPort  uint16
-	dstPort  uint16
-	seqNum   uint32
-	ackNum   uint32
-	drc      uint16 /* Data Offsets, Reserved, and Control Bits */
-	window   uint16
-	checksum uint16
-	urgPtr   uint16
-	options  uint32
-	payload  []byte
+/* TCP Header Fields
+srcPort   uint16
+dstPort   uint16
+seqNum    uint32
+ackNum    uint32
+do_res_cp uint16 (data offset, reserve, and control bits)
+window    uint16
+checksum  uint16
+urgPtr    uint16
+options   uint32
+payload   []byte*/
+
+/* Expectes a TCP Header as byte stream []byte */
+type TCPHeader []byte
+
+func (th TCPHeader) GetSrcPort() uint16 {
+	return binary.BigEndian.Uint16(th[0:2])
 }
 
-func (th *TCPHeader) GetSrcPort() uint16 {
+func (th TCPHeader) SetSrcPort(srcPort uint16) {
+	binary.BigEndian.PutUint16(th[0:2], srcPort)
+}
+
+func (th TCPHeader) GetDstPort() uint16 {
+	return binary.BigEndian.Uint16(th[2:4])
+}
+
+func (th TCPHeader) SetDstPort(srcPort uint16) {
+	binary.BigEndian.PutUint16(th[2:4], srcPort)
+}
+
+/*func (th *TCPHeader) GetSrcPort() uint16 {
 	return th.srcPort
 }
 
+func (th TCPHeader) {
+
+}
 func (th *TCPHeader) GetDstPort() uint16 {
 	return th.dstPort
-}
+}*/
 
-func ParseTCPHeader(packet []byte) *TCPHeader {
+/*func ParseTCPHeader(packet []byte) *TCPHeader {
 	th := &TCPHeader{}
 	th.srcPort = binary.BigEndian.Uint16(packet[0:2])
 	th.dstPort = binary.BigEndian.Uint16(packet[2:4])
@@ -38,4 +59,4 @@ func ParseTCPHeader(packet []byte) *TCPHeader {
 	th.options = binary.BigEndian.Uint32(packet[20:24])
 	th.payload = packet[24:]
 	return th
-}
+}*/

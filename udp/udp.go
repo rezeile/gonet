@@ -4,41 +4,52 @@ import (
 	"encoding/binary"
 )
 
-type UDPHeader struct {
-	srcPort  uint16
-	dstPort  uint16
-	length   uint16
-	checksum uint16
-	payload  []byte
+type UDPHeader []byte
+
+const UDP_HDR_SIZE = 8
+
+func (uh UDPHeader) GetSourcePort() uint16 {
+	res := binary.BigEndian.Uint16(uh[0:2])
+	return res
 }
 
-func (uh *UDPHeader) GetSrcPort() uint16 {
-	return uh.srcPort
+func (uh UDPHeader) SetSourcePort(p uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, p)
+	copy(uh[0:2], buf)
 }
 
-func (uh *UDPHeader) SetSrcPort(packet []byte, srcPort uint16) {
-	binary.BigEndian.PutUint16(packet[0:2], srcPort)
-	uh.srcPort = srcPort
+func (uh UDPHeader) GetDestinationPort() uint16 {
+	return binary.BigEndian.Uint16(uh[2:4])
 }
 
-func (uh *UDPHeader) GetDstPort() uint16 {
-	return uh.dstPort
+func (uh UDPHeader) SetDestinationPort(p uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, p)
+	copy(uh[2:4], buf)
 }
 
-func (uh *UDPHeader) SetDstPort(packet []byte, dstPort uint16) {
-	binary.BigEndian.PutUint16(packet[2:4], dstPort)
-	uh.dstPort = dstPort
+func (uh UDPHeader) GetLength() uint16 {
+	return binary.BigEndian.Uint16(uh[4:6])
 }
 
-func (uh *UDPHeader) GetPayload() []byte {
-	return uh.payload
+func (uh UDPHeader) SetLength(l uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, l)
+	copy(uh[4:6], buf)
 }
 
-func ParseUDPHeader(packet []byte) *UDPHeader {
-	uh := &UDPHeader{}
-	uh.srcPort = binary.BigEndian.Uint16(packet[0:2])
-	uh.dstPort = binary.BigEndian.Uint16(packet[2:4])
-	uh.checksum = binary.BigEndian.Uint16(packet[16:18])
-	uh.payload = packet[24:]
-	return uh
+func (uh UDPHeader) GetChecksum() uint16 {
+	return binary.BigEndian.Uint16(uh[6:8])
+}
+
+func (uh UDPHeader) SetChecksum(c uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, c)
+	copy(uh[6:8], buf)
+
+}
+
+func (uh UDPHeader) GetPayloadOffset() uint16 {
+	return UDP_HDR_SIZE
 }
