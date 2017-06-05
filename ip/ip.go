@@ -97,6 +97,12 @@ func (ip IPHeader) GetPayloadOffset() uint16 {
 	return uint16(thl) * 4
 }
 
+func (ip IPHeader) GetTCPLength() uint16 {
+	ihl := ip.GetIHL()
+	tl := ip.GetTotalLength()
+	return (tl - (uint16(ihl) * 4))
+}
+
 /* Unexported utility Methods */
 func (ip IPHeader) addrToString(s, e int) string {
 	i := binary.BigEndian.Uint32(ip[s:e])
