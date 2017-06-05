@@ -1,41 +1,52 @@
-TCP Implementation in GO
+TCP Implementation in GO using TUN interface
+Author: Eliezer Abate
+-------------------------------------------------------------------------------
 
-In the following implementation of TCP we will implement functions related to 
-the 'net' package types TCPAddr, TCP Conn, and TCPListener from scratch. Below
-are the functions associated with each of the types that we will implement:
+In the following project I implement a sliding window TCP layer. The 
+project fully implements all the various states of the TCP finite state machine.
 
-I.   TCP Addr
-     1. ResolveTCPAddr
-     2. Network
-     3. String 
+The following APIs are provided for clients:
 
-II.  TCPConn
-     1. Dial TCP
-     2. Close
-     3. CloseRead
-     4. CloseWrite
-     5. File
-     6. LocalAddr
-     7. Read
-     8. ReadFrom
-     9. RemoteAddr
-    10. SetDeadline
-    11. SetKeepAlive
-    12. SetKeepAlivePeriod
-    13. SetLinger
-    14. SetNoDelay
-    15. SetReadBuffer
-    16. SetReadDeadline
-    17. SetWriteBuffer
-    18. SetWriteDeadline
-    19. Write
+type TCPConn
+    
+    A.  Function
+        
+        1. DialTCP (ipaddr string,port uin16) (*TCPConn, error)  
+           - DialTCP connects to the given socket and returns a TCPConn   
+    
+    B.  Methods 
+        
+        1. Read(b []byte) (int, error)  
+           - Reads b into the connection; returns number of bytes read
 
-III. TCP Listener
-     1. ListenTCP
-     2. Accept
-     3. AcceptTCP
-     4. Addr
-     5. Close
-     6. File
-     7. SetDeadline
+        2. Write(b []byte) (int, error)  
+           - Writes b into the connection; returns number of bytes written
+
+        3. RemoteAddr() string 
+           - Prints the remote address
+
+        4. LocalAddr() string 
+           - Prints the local address 
+
+        5. Close() error
+           - Closes the connection
+
+type TCPListener
+    
+    A.  Function
+        
+        1. Listen(ipaddr string, port uint16) (*TCPListener,error) 
+          -  Listen to TCP Connections at the given socket
+
+    B.  Methods
+        
+        1. Accept() (*TCPConn, error)  
+           - Accepts a connection and returns a new connection instance to client
+       
+        2. Close() error 
+           - Closes the connection and cleans up underlying data structures
+        
+        3. Address() string 
+           - Prints the address of the listener
+
 
