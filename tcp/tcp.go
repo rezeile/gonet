@@ -4,59 +4,164 @@ import (
 	"encoding/binary"
 )
 
-/* TCP Header Fields
-srcPort   uint16
-dstPort   uint16
-seqNum    uint32
-ackNum    uint32
-do_res_cp uint16 (data offset, reserve, and control bits)
-window    uint16
-checksum  uint16
-urgPtr    uint16
-options   uint32
-payload   []byte*/
-
-/* Expectes a TCP Header as byte stream []byte */
 type TCPHeader []byte
 
-func (th TCPHeader) GetSrcPort() uint16 {
+func (th TCPHeader) GetSourcePort() uint16 {
 	return binary.BigEndian.Uint16(th[0:2])
 }
 
-func (th TCPHeader) SetSrcPort(srcPort uint16) {
-	binary.BigEndian.PutUint16(th[0:2], srcPort)
+func (th TCPHeader) SetSourcePort(p uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, p)
+	copy(th[0:2], buf)
 }
 
-func (th TCPHeader) GetDstPort() uint16 {
+func (th TCPHeader) GetDestinationPort() uint16 {
 	return binary.BigEndian.Uint16(th[2:4])
 }
 
-func (th TCPHeader) SetDstPort(srcPort uint16) {
-	binary.BigEndian.PutUint16(th[2:4], srcPort)
+func (th TCPHeader) SetDestinationPort(p uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, p)
+	copy(th[2:4], buf)
 }
 
-/*func (th *TCPHeader) GetSrcPort() uint16 {
-	return th.srcPort
+func (th TCPHeader) GetSeqNumber() uint32 {
+	return binary.BigEndian.Uint32(th[4:8])
 }
 
-func (th TCPHeader) {
-
+func (th TCPHeader) SetSeqNumber(sn uint32) {
+	buf := make([]byte, 4)
+	binary.BigEndian.PutUint32(buf, sn)
+	copy(th[4:8], buf)
 }
-func (th *TCPHeader) GetDstPort() uint16 {
-	return th.dstPort
-}*/
 
-/*func ParseTCPHeader(packet []byte) *TCPHeader {
-	th := &TCPHeader{}
-	th.srcPort = binary.BigEndian.Uint16(packet[0:2])
-	th.dstPort = binary.BigEndian.Uint16(packet[2:4])
-	th.seqNum = binary.BigEndian.Uint32(packet[4:8])
-	th.ackNum = binary.BigEndian.Uint32(packet[8:12])
-	th.drc = binary.BigEndian.Uint16(packet[12:14])
-	th.window = binary.BigEndian.Uint16(packet[14:16])
-	th.checksum = binary.BigEndian.Uint16(packet[16:18])
-	th.urgPtr = binary.BigEndian.Uint16(packet[18:20])
-	th.options = binary.BigEndian.Uint32(packet[20:24])
-	th.payload = packet[24:]
-	return th
-}*/
+func (th TCPHeader) GetAckNumber() uint32 {
+	return binary.BigEndian.Uint32(th[8:12])
+}
+
+func (th TCPHeader) SetAckNumber(sn uint32) {
+	buf := make([]byte, 4)
+	binary.BigEndian.PutUint32(buf, sn)
+	copy(th[8:12], buf)
+}
+
+func (th TCPHeader) GetDataOffset() uint8 {
+	mask := byte(0xf0)
+	b := byte(th[12])
+	b = mask & b
+	b = (b >> 4)
+	return b
+}
+
+func (th TCPHeader) GetReserved() uint8 {
+	mask := byte(0x7)
+	b := byte(th[12])
+	b = mask & b
+	return b
+}
+
+func (th TCPHeader) GetNS() uint8 {
+	mask := byte(0x1)
+	b := byte(th[12])
+	b = mask & b
+	return b
+}
+
+func (th TCPHeader) GetCWR() uint8 {
+	mask := byte(0x80)
+	b := byte(th[13])
+	b = mask & b
+	b = (b >> 7)
+	return b
+}
+
+func (th TCPHeader) GetECE() uint8 {
+	mask := byte(0x40)
+	b := byte(th[13])
+	b = mask & b
+	b = (b >> 6)
+	return b
+}
+
+func (th TCPHeader) GetURG() uint8 {
+	mask := byte(0x20)
+	b := byte(th[13])
+	b = mask & b
+	b = (b >> 5)
+	return b
+}
+
+func (th TCPHeader) GetACK() uint8 {
+	mask := byte(0x10)
+	b := byte(th[13])
+	b = mask & b
+	b = (b >> 4)
+	return b
+}
+
+func (th TCPHeader) GetPSH() uint8 {
+	mask := byte(0x8)
+	b := byte(th[13])
+	b = mask & b
+	b = (b >> 3)
+	return b
+}
+
+func (th TCPHeader) GetRST() uint8 {
+	mask := byte(0x4)
+	b := byte(th[13])
+	b = mask & b
+	b = (b >> 2)
+	return b
+}
+
+func (th TCPHeader) GetSYN() uint8 {
+	mask := byte(0x2)
+	b := byte(th[13])
+	b = mask & b
+	b = (b >> 1)
+	return b
+}
+
+func (th TCPHeader) GetFIN() uint8 {
+	mask := byte(0x1)
+	b := byte(th[13])
+	b = mask & b
+	return b
+}
+
+func (th TCPHeader) GetWindowSize() uint16 {
+	return binary.BigEndian.Uint16(th[14:16])
+}
+
+func (th TCPHeader) SetWindowSize(s uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, s)
+	copy(th[14:16], buf)
+}
+
+func (th TCPHeader) GetChecksum() uint16 {
+	return binary.BigEndian.Uint16(th[16:18])
+}
+
+func (th TCPHeader) SetChecksum(c uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, c)
+	copy(th[16:18], buf)
+}
+
+func (th TCPHeader) GetUrgentPointer() uint16 {
+	return binary.BigEndian.Uint16(th[18:20])
+}
+
+func (th TCPHeader) SetUrgentPointer(u uint16) {
+	buf := make([]byte, 2)
+	binary.BigEndian.PutUint16(buf, u)
+	copy(th[18:20], buf)
+}
+
+func (th TCPHeader) GetPayloadOffset() uint16 {
+	do := th.GetDataOffset()
+	return uint16(do) * 4
+}
