@@ -92,5 +92,7 @@ func createSynAck(ih ip.IPHeader) ip.IPHeader {
 	tcpPacket.SetSourcePort(destinationPort)
 	tcpPacket.SetDestinationPort(sourcePort)
 	tcpPacket.SetACK(true)
+
+	/* TODO: Update checksum */
 	return ipPacket
 }
