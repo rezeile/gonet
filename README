@@ -11,7 +11,7 @@ type TCPConn
     
     A.  Function
         
-        1. DialTCP (ipaddr string,port uin16) (*TCPConn, error)  
+        1. DialTCP (ipaddr string,port uint16) (*TCPConn, error)  
            - DialTCP connects to the given socket and returns a TCPConn   
     
     B.  Methods 

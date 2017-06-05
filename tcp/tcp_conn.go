@@ -10,3 +10,27 @@ type TCPConn struct {
 	sendWindow      uint16
 	receiveWindow   uint16
 }
+
+func DialTCP(ipaddr string, port uint16) (*TCPConn, error) {
+	return &TCPConn{}, nil
+}
+
+func (c *TCPConn) Read(b []byte) (int, error) {
+	return 0, nil
+}
+
+func (c *TCPConn) Write(b []byte) (int, error) {
+	return 0, nil
+}
+
+func (c *TCPConn) RemoteAddr() string {
+	return ""
+}
+
+func (c *TCPConn) LocalAddr() string {
+	return ""
+}
+
+func (c *TCPConn) Close() error {
+	return nil
+}
