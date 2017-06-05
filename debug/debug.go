@@ -38,31 +38,31 @@ func PrintUDPHeader(uh udp.UDPHeader) {
 
 func tcpControlBits(th tcp.TCPHeader) string {
 	var ns, cwr, ece, urg, ack, psh, rst, syn, fin string = "NO", "NO", "NO", "NO", "NO", "NO", "NO", "NO", "NO"
-	if th.GetNS() > 0 {
+	if th.GetNS() {
 		ns = "YES"
 	}
-	if th.GetCWR() > 0 {
+	if th.GetCWR() {
 		cwr = "YES"
 	}
-	if th.GetECE() > 0 {
+	if th.GetECE() {
 		ece = "YES"
 	}
-	if th.GetURG() > 0 {
+	if th.GetURG() {
 		urg = "YES"
 	}
-	if th.GetACK() > 0 {
+	if th.GetACK() {
 		ack = "YES"
 	}
-	if th.GetPSH() > 0 {
+	if th.GetPSH() {
 		psh = "YES"
 	}
-	if th.GetRST() > 0 {
+	if th.GetRST() {
 		rst = "YES"
 	}
-	if th.GetSYN() > 0 {
+	if th.GetSYN() {
 		syn = "YES"
 	}
-	if th.GetFIN() > 0 {
+	if th.GetFIN() {
 		fin = "YES"
 	}
 	return fmt.Sprintf("[NS: %s],[CWR: %s],[ECE: %s],[URG: %s],[ACK: %s],[PSH: %s],[RST: %s],[SYN: %s],[FIN: %s]", ns, cwr, ece, urg, ack, psh, rst, syn, fin)

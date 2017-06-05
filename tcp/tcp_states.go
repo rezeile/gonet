@@ -1,7 +1,8 @@
 package tcp
 
 const (
-	LISTEN = iota
+	CLOSED = iota
+	LISTEN
 	SYN_SENT
 	SYN_RECEIVED
 	ESTABLISHED
@@ -11,5 +12,4 @@ const (
 	CLOSING
 	LAST_ACK
 	TIME_WAIT
-	CLOSED
 )

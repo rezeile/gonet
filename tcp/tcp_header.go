@@ -61,74 +61,81 @@ func (th TCPHeader) GetReserved() uint8 {
 	return b
 }
 
-func (th TCPHeader) GetNS() uint8 {
+func (th TCPHeader) GetNS() bool {
 	mask := byte(0x1)
 	b := byte(th[12])
 	b = mask & b
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetCWR() uint8 {
+func (th TCPHeader) GetCWR() bool {
 	mask := byte(0x80)
 	b := byte(th[13])
 	b = mask & b
 	b = (b >> 7)
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetECE() uint8 {
+func (th TCPHeader) GetECE() bool {
 	mask := byte(0x40)
 	b := byte(th[13])
 	b = mask & b
 	b = (b >> 6)
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetURG() uint8 {
+func (th TCPHeader) GetURG() bool {
 	mask := byte(0x20)
 	b := byte(th[13])
 	b = mask & b
 	b = (b >> 5)
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetACK() uint8 {
+func (th TCPHeader) GetACK() bool {
 	mask := byte(0x10)
 	b := byte(th[13])
 	b = mask & b
 	b = (b >> 4)
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetPSH() uint8 {
+func (th TCPHeader) SetACK(v bool) {
+	mask := byte(0x10)
+	b := byte(th[13])
+	b = mask | b
+	th[13] = b
+}
+
+func (th TCPHeader) GetPSH() bool {
 	mask := byte(0x8)
 	b := byte(th[13])
 	b = mask & b
 	b = (b >> 3)
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetRST() uint8 {
+func (th TCPHeader) GetRST() bool {
 	mask := byte(0x4)
 	b := byte(th[13])
 	b = mask & b
 	b = (b >> 2)
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetSYN() uint8 {
+func (th TCPHeader) GetSYN() bool {
 	mask := byte(0x2)
 	b := byte(th[13])
 	b = mask & b
 	b = (b >> 1)
-	return b
+	return booleanValue(b)
 }
 
-func (th TCPHeader) GetFIN() uint8 {
+func (th TCPHeader) GetFIN() bool {
 	mask := byte(0x1)
 	b := byte(th[13])
 	b = mask & b
-	return b
+	return booleanValue(b)
 }
 
 func (th TCPHeader) GetWindowSize() uint16 {
@@ -164,4 +171,14 @@ func (th TCPHeader) SetUrgentPointer(u uint16) {
 func (th TCPHeader) GetPayloadOffset() uint16 {
 	do := th.GetDataOffset()
 	return uint16(do) * 4
+}
+
+/* Utility Methods */
+
+func booleanValue(b byte) bool {
+	if b > byte(0) {
+		return true
+	} else {
+		return false
+	}
 }

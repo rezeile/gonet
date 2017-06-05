@@ -11,7 +11,8 @@ type TCPConn struct {
 	receiveWindow   uint16
 }
 
-func DialTCP(ipaddr string, port uint16) (*TCPConn, error) {
+/* Active (client) TCP Open */
+func Dial(ipaddr string, port uint16) (*TCPConn, error) {
 	return &TCPConn{}, nil
 }
 
