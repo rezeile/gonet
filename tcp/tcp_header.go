@@ -103,7 +103,12 @@ func (th TCPHeader) GetACK() bool {
 func (th TCPHeader) SetACK(v bool) {
 	mask := byte(0x10)
 	b := byte(th[13])
-	b = mask | b
+	if v {
+		b = mask | b
+	} else {
+		mask = ^mask
+		b = mask & b
+	}
 	th[13] = b
 }
 
@@ -136,6 +141,18 @@ func (th TCPHeader) GetFIN() bool {
 	b := byte(th[13])
 	b = mask & b
 	return booleanValue(b)
+}
+
+func (th TCPHeader) SetFIN(v bool) {
+	mask := byte(0x1)
+	b := byte(th[13])
+	if v {
+		b = mask | b
+	} else {
+		mask = ^mask
+		b = mask & b
+	}
+	th[13] = b
 }
 
 func (th TCPHeader) GetWindowSize() uint16 {

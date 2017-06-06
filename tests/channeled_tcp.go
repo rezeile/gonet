@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/rezeile/gonet/ip"
 	"github.com/rezeile/gonet/tcp"
 	"github.com/rezeile/gonet/tun"
 	"log"
@@ -10,15 +9,11 @@ import (
 
 func handleConnection(conn *tcp.TCPConn) {
 	fmt.Println("TCP Connection Established")
-	for {
-		ih := <-conn.Reader
-		ip.PrintIPHeader(ih)
-	}
 }
 
 func main() {
 	tun.Configure()
-	ln, err := tcp.Listen("10.0.0.2", 23)
+	ln, err := tcp.Listen("10.0.0.5", 23)
 	if err != nil {
 		log.Fatal(err)
 	}
