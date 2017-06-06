@@ -1,12 +1,18 @@
 package tcp
 
+import (
+	"github.com/rezeile/gonet/ip"
+)
+
 type TCPConn struct {
+	writer          *ip.IP
+	reader          *ip.IP
 	sourceIP        string
 	sourcePort      uint16
 	destinationIP   string
 	destinationPort uint16
 	state           uint8
-	MSS             uint16 /* Maximum Segment Size */
+	mss             uint16 /* Maximum Segment Size */
 	sendWindow      uint16
 	receiveWindow   uint16
 }

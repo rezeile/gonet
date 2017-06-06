@@ -1,9 +1,8 @@
-package checksum
+package tcp
 
 import (
 	"encoding/binary"
 	"github.com/rezeile/gonet/ip"
-	"github.com/rezeile/gonet/tcp"
 )
 
 func generateTCPPseudoHeader(ih ip.IPHeader) []byte {
@@ -47,10 +46,10 @@ func ComputeTCPChecksum(ih ip.IPHeader) uint16 {
 	/* Create 12 byte pseudo header */
 	ph := generateTCPPseudoHeader(ih)
 	/* Get stored checksum */
-	th := tcp.TCPHeader(ih[ih.GetPayloadOffset():])
+	th := TCPHeader(ih[ih.GetPayloadOffset():])
 	thcpy := make([]byte, ih.GetTCPLength())
 	copy(thcpy, []byte(th))
-	tcp.TCPHeader(thcpy).SetChecksum(0)
+	TCPHeader(thcpy).SetChecksum(0)
 	/* Prepend TCP Psuedo Header */
 	h := append(ph, thcpy...)
 	phlen := uint16(len(ph))

@@ -1,9 +1,9 @@
 package tcp
 
 import (
-	//"fmt"
 	"github.com/rezeile/gonet/ip"
 	"log"
+	"time"
 )
 
 const (
@@ -40,26 +40,53 @@ func Listen(ipaddr string, port uint16) (*TCPListener, error) {
 }
 
 func (l *TCPListener) Accept() (*TCPConn, error) {
-	buf := make([]byte, l.mss)
 	/* Wait for read from lower layer */
+	buf := make([]byte, l.mss)
 	n, err := l.reader.Read(buf)
 	if err != nil {
 		log.Fatal(err)
 	}
-	/* Obtain IP layer */
-	ih := ip.IPHeader(buf[0:n])
-	/* Obtain TCP header */
-	th := TCPHeader(buf[ih.GetPayloadOffset():])
+
 	/* Expects a SYN Packet */
+	ih := ip.IPHeader(buf[0:n])
+	th := TCPHeader(buf[ih.GetPayloadOffset():])
 	if th.GetSYN() {
 		p := createSynAck(ih)
 		l.writer.Write([]byte(p))
+		l.state = SYN_RECEIVED
+	} else {
+		// TODO: send error back
 	}
-	/* Expect an ACK Packet */
+
+	/* Wait for read from lower layer */
 	n, err = l.reader.Read(buf)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	/* Expect an ACK Packet */
+	ih = ip.IPHeader(buf[0:n])
+	th = TCPHeader(buf[ih.GetPayloadOffset():])
+	PrintTCPHeader(th)
+	time.Sleep(5000 * time.Millisecond)
+	if th.GetACK() {
+		return &TCPConn{
+			writer:          l.writer,
+			reader:          l.reader,
+			sourceIP:        ih.GetDestinationIP(),
+			sourcePort:      th.GetDestinationPort(),
+			destinationIP:   ih.GetSourceIP(),
+			destinationPort: th.GetSourcePort(),
+			state:           ESTABLISHED,
+			mss:             1500,
+			sendWindow:      0,
+			receiveWindow:   0,
+		}, nil
+
+	} else {
+		/* TODO: send error back */
+	}
+
 	/* Return TCP Connection  */
 	return &TCPConn{}, nil
 }
@@ -92,7 +119,7 @@ func createSynAck(ih ip.IPHeader) ip.IPHeader {
 	tcpPacket.SetSourcePort(destinationPort)
 	tcpPacket.SetDestinationPort(sourcePort)
 	tcpPacket.SetACK(true)
-
-	/* TODO: Update checksum */
+	tcpPacket.SetAckNumber(th.GetSeqNumber() + 1)
+	tcpPacket.SetChecksum(ComputeTCPChecksum(ipPacket))
 	return ipPacket
 }
