@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/rezeile/gonet/tcp"
+	"github.com/rezeile/gonet/tun"
 	"log"
 )
 
@@ -14,6 +15,7 @@ func testTCP() {
 	}
 	for {
 		conn, err := l.Accept()
+		fmt.Printf("Accepted\n")
 		if err != nil {
 			fmt.Println(err)
 			conn.Close()
@@ -23,5 +25,6 @@ func testTCP() {
 }
 
 func main() {
+	tun.Configure()
 	testTCP()
 }

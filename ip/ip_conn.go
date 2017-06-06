@@ -1,24 +1,34 @@
 package ip
 
 import (
-	"fmt"
 	"github.com/songgao/water"
 	"log"
 )
 
+const TUN_MAX = 8
+
+var IPTun *IP
+
 type IP struct {
-	ifce *water.Interface
+	ifce   *water.Interface
+	Writer chan IPHeader
 }
 
 func NetworkTunnel() (*IP, error) {
-	ifce, err := water.New(water.Config{
+	i, err := water.New(water.Config{
 		DeviceType: water.TUN,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Interface %s\n", ifce.Name())
-	return &IP{ifce}, err
+	return &IP{
+		ifce:   i,
+		Writer: make(chan IPHeader, TUN_MAX),
+	}, err
+}
+
+func (i *IP) Name() string {
+	return i.ifce.Name()
 }
 
 func (i *IP) Read(b []byte) (int, error) {

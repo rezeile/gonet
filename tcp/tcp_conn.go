@@ -4,9 +4,11 @@ import (
 	"github.com/rezeile/gonet/ip"
 )
 
+var Connections map[string]*TCPConn
+
 type TCPConn struct {
-	writer          *ip.IP
-	reader          *ip.IP
+	Writer          chan ip.IPHeader
+	Reader          chan ip.IPHeader
 	sourceIP        string
 	sourcePort      uint16
 	destinationIP   string
@@ -15,6 +17,8 @@ type TCPConn struct {
 	mss             uint16 /* Maximum Segment Size */
 	sendWindow      uint16
 	receiveWindow   uint16
+	nextAckNumber   uint32
+	nextSeqNumber   uint32
 }
 
 /* Active (client) TCP Open */
@@ -40,4 +44,8 @@ func (c *TCPConn) LocalAddr() string {
 
 func (c *TCPConn) Close() error {
 	return nil
+}
+
+func (c *TCPConn) GetState() uint8 {
+	return c.state
 }

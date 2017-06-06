@@ -1,18 +1,20 @@
 package tcp
 
 import (
+	"bytes"
 	"github.com/rezeile/gonet/ip"
-	"log"
-	"time"
+	"strconv"
 )
 
 const (
 	MSS = 1500 /* Maximum Transmission Unit  */
 )
 
+var Listeners map[string]*TCPListener
+
 type TCPListener struct {
-	writer          *ip.IP
-	reader          *ip.IP
+	Writer          chan ip.IPHeader
+	Reader          chan ip.IPHeader
 	sourceIP        string
 	sourcePort      uint16
 	destinationIP   string
@@ -21,58 +23,45 @@ type TCPListener struct {
 	mss             uint16
 }
 
-/* Passive TCP open */
+func (l *TCPListener) GetState() uint8 {
+	return l.state
+}
+
+/* Passive TCP Open */
 func Listen(ipaddr string, port uint16) (*TCPListener, error) {
-	/* Activate the TUN interface */
-	ip, err := ip.NetworkTunnel()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &TCPListener{
-		writer:          ip,
-		reader:          ip,
-		sourceIP:        "",
-		sourcePort:      0,
+	l := &TCPListener{
+		Writer:          ip.IPTun.Writer,
+		Reader:          make(chan ip.IPHeader),
+		sourceIP:        ipaddr,
+		sourcePort:      port,
 		destinationIP:   "",
 		destinationPort: 0,
 		state:           LISTEN,
-		mss:             MSS}, nil
+		mss:             MSS}
+	/* Add to Listener set */
+	Listeners[GenerateLKey(ipaddr, port)] = l
+	return l, nil
 }
 
 func (l *TCPListener) Accept() (*TCPConn, error) {
-	/* Wait for read from lower layer */
-	buf := make([]byte, l.mss)
-	n, err := l.reader.Read(buf)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	/* Expects a SYN Packet */
-	ih := ip.IPHeader(buf[0:n])
-	th := TCPHeader(buf[ih.GetPayloadOffset():])
+	/* Wait for a SYN Packet */
+	ih := <-l.Reader
+	th := TCPHeader(ih[ih.GetPayloadOffset():])
 	if th.GetSYN() {
-		p := createSynAck(ih)
-		l.writer.Write([]byte(p))
 		l.state = SYN_RECEIVED
-	} else {
-		// TODO: send error back
+		l.Writer <- createSynAck(ih)
 	}
 
-	/* Wait for read from lower layer */
-	n, err = l.reader.Read(buf)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	/* Expect an ACK Packet */
-	ih = ip.IPHeader(buf[0:n])
-	th = TCPHeader(buf[ih.GetPayloadOffset():])
-	PrintTCPHeader(th)
-	time.Sleep(5000 * time.Millisecond)
+	/* Wait for an ACK packet after sending SYN Ack  */
+	ih = <-l.Reader
+	th = TCPHeader(ih[ih.GetPayloadOffset():])
 	if th.GetACK() {
-		return &TCPConn{
-			writer:          l.writer,
-			reader:          l.reader,
+		/* Restore l.state */
+		l.state = LISTEN
+		/* Return new connection */
+		c := &TCPConn{
+			Writer:          ip.IPTun.Writer,
+			Reader:          make(chan ip.IPHeader),
 			sourceIP:        ih.GetDestinationIP(),
 			sourcePort:      th.GetDestinationPort(),
 			destinationIP:   ih.GetSourceIP(),
@@ -81,12 +70,14 @@ func (l *TCPListener) Accept() (*TCPConn, error) {
 			mss:             1500,
 			sendWindow:      0,
 			receiveWindow:   0,
-		}, nil
-
-	} else {
-		/* TODO: send error back */
+			nextAckNumber:   th.GetSeqNumber() + 1,
+			nextSeqNumber:   th.GetAckNumber() + 1,
+		}
+		/* Add to Connections */
+		addToConnectionList(c)
+		/* Return New Connection */
+		return c, nil
 	}
-
 	/* Return TCP Connection  */
 	return &TCPConn{}, nil
 }
@@ -99,7 +90,26 @@ func (l *TCPListener) Address() string {
 	return ""
 }
 
-/* Three Way Connection Utility Methods */
+/* Three Way Handshake Utility Methods */
+func GenerateLKey(ipaddr string, port uint16) string {
+	var key bytes.Buffer
+	key.WriteString(ipaddr)
+	return key.String()
+}
+
+func GenerateCKey(s string, sp uint16, d string, dp uint16) string {
+	var key bytes.Buffer
+	key.WriteString(s)
+	key.WriteString(strconv.Itoa(int(sp)))
+	key.WriteString(d)
+	return key.String()
+}
+
+func addToConnectionList(c *TCPConn) {
+	key := GenerateCKey(c.sourceIP, c.sourcePort, c.destinationIP, c.destinationPort)
+	Connections[key] = c
+}
+
 func createSynAck(ih ip.IPHeader) ip.IPHeader {
 	/* Extract Return Fields */
 	sourceIP := ih.GetSourceIP()
