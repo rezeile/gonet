@@ -32,7 +32,7 @@ func (th TCPHeader) GetSeqNumber() uint32 {
 
 func (th TCPHeader) SetSeqNumber(sn uint32) {
 	buf := make([]byte, 4)
-	binary.BigEndian.PutUint32(buf, sn)
+	binary.LittleEndian.PutUint32(buf, sn)
 	copy(th[4:8], buf)
 }
 

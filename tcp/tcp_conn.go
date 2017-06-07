@@ -90,6 +90,7 @@ func createAck(ih ip.IPHeader) ip.IPHeader {
 	tcpPacket.SetDestinationPort(sourcePort)
 	tcpPacket.SetACK(true)
 	tcpPacket.SetAckNumber(th.GetSeqNumber() + 1)
+	tcpPacket.SetSeqNumber(th.GetAckNumber() + 1)
 	tcpPacket.SetChecksum(ComputeTCPChecksum(ipPacket))
 	return ipPacket
 }
