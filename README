@@ -2,51 +2,6 @@ TCP Implementation in GO using TUN interface
 Author: Eliezer Abate
 -------------------------------------------------------------------------------
 
-In the following project I implement a sliding window TCP layer. The 
+In the following project I implement TCP layer on top of a TUN IP interface. The 
 project fully implements all the various states of the TCP finite state machine.
-
-The following APIs are provided for clients:
-
-type TCPConn
-    
-    A.  Function
-        
-        1. DialTCP (ipaddr string,port uint16) (*TCPConn, error)  
-           - DialTCP connects to the given socket and returns a TCPConn   
-    
-    B.  Methods 
-        
-        1. Read(b []byte) (int, error)  
-           - Reads b into the connection; returns number of bytes read
-
-        2. Write(b []byte) (int, error)  
-           - Writes b into the connection; returns number of bytes written
-
-        3. RemoteAddr() string 
-           - Prints the remote address
-
-        4. LocalAddr() string 
-           - Prints the local address 
-
-        5. Close() error
-           - Closes the connection
-
-type TCPListener
-    
-    A.  Function
-        
-        1. Listen(ipaddr string, port uint16) (*TCPListener,error) 
-          -  Listen to TCP Connections at the given socket
-
-    B.  Methods
-        
-        1. Accept() (*TCPConn, error)  
-           - Accepts a connection and returns a new connection instance to client
-       
-        2. Close() error 
-           - Closes the connection and cleans up underlying data structures
-        
-        3. Address() string 
-           - Prints the address of the listener
-
-
+The project implements TCP three-way handshake, communication, and termination.

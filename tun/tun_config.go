@@ -37,20 +37,18 @@ func demultiplex() {
 		default:
 			/* Read arriving packet at interface */
 			n, err := ipt.Read(datagram)
+			fmt.Println("Datagram Arrived")
 			if err != nil {
 				log.Fatal(err)
 			}
 			ih := ip.IPHeader(datagram[:n])
 			th := tcp.TCPHeader(ih[ih.GetPayloadOffset():])
-			fmt.Println(th)
 			if k := getListenerKey(ih, th); k != "" {
-				fmt.Println("For Listener")
 				ln := tcp.Listeners[k]
 				ln.Reader <- ih
 			}
 
 			if k := getConnectionKey(ih, th); k != "" {
-				fmt.Println("For Connection")
 				conn := tcp.Connections[k]
 				if conn.GetState() == tcp.ESTABLISHED && th.GetFIN() {
 					conn.InitiatePassiveClose(ih)

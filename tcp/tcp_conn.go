@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"fmt"
 	"github.com/rezeile/gonet/ip"
 )
 
@@ -48,17 +49,15 @@ func (c *TCPConn) Close() error {
 
 /* Called when FIN packet is received */
 func (c *TCPConn) InitiatePassiveClose(ih ip.IPHeader) {
-	/* Send Ack */
-	c.Writer <- createAck(ih)
-
-	/* Move to CLOSE_WAIT state */
-	c.state = CLOSE_WAIT
-
+	fmt.Println("Initiating Passive Close")
 	/* Move to LAST_ACK state */
 	c.state = LAST_ACK
+	/* Send Ack */
+	c.Writer <- createAck(ih)
 }
 
 func (c *TCPConn) CompletePassiveClose() {
+	fmt.Println("Completing Passive Close")
 	/* Free c from Connections list */
 	key := GenerateCKey(c.sourceIP, c.sourcePort, c.destinationIP, c.destinationPort)
 	close(c.Reader)
@@ -90,12 +89,13 @@ func createAck(ih ip.IPHeader) ip.IPHeader {
 	tcpPacket.SetDestinationPort(sourcePort)
 	tcpPacket.SetACK(true)
 	tcpPacket.SetAckNumber(th.GetSeqNumber() + 1)
-	tcpPacket.SetSeqNumber(th.GetAckNumber() + 1)
+	//tcpPacket.SetSeqNumber(th.GetAckNumber() + 1)
 	tcpPacket.SetChecksum(ComputeTCPChecksum(ipPacket))
 	return ipPacket
 }
 
 func createFin(ih ip.IPHeader) ip.IPHeader {
+	fmt.Println("In CreateFin")
 	/* Extract Return Fields */
 	sourceIP := ih.GetSourceIP()
 	destinationIP := ih.GetDestinationIP()
