@@ -9,11 +9,11 @@ The project implements TCP three-way handshake, communication, and termination.
 
 ## FEATURES IN DEVELOPMENT
 
--> TODO 3/13
+- TODO 3/13
 
 ## UNSUPORTED PLATFORMS
 
--> TODO 3/13
+- TODO 3/13
 
 ## BUGS 
 
